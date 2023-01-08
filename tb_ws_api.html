@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <script type="text/javascript">
+        function WebSocketAPIExample() {
+            var token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkYW1kaWF6QHVjbHYuY3UiLCJzY29wZXMiOlsiVEVOQU5UX0FETUlOIl0sInVzZXJJZCI6IjQ4NjkzNmYwLTFkOGEtMTFlYy05ZTQzLTQ1Y2M5ZjFjMjFlYyIsImZpcnN0TmFtZSI6IkRhbmllbCIsImxhc3ROYW1lIjoiTWVzYSIsImVuYWJsZWQiOnRydWUsImlzUHVibGljIjpmYWxzZSwidGVuYW50SWQiOiIxMWFmMGU2MC0xZDdmLTExZWMtOTgxNi04OWE4MjI0MGI4N2MiLCJjdXN0b21lcklkIjoiMTM4MTQwMDAtMWRkMi0xMWIyLTgwODAtODA4MDgwODA4MDgwIiwiaXNzIjoidGhpbmdzYm9hcmQuaW8iLCJpYXQiOjE2NzMxNTIxMDgsImV4cCI6MTY3MzE2MTEwOH0.OAf8dmTKHhL2jswuIT5VpphnJ5_WS_YYGIVEcCa9ZAwEwT3DN9Q1svmpFJe7aFKsB-mQXur1d3xs71z6TpT2Vg";
+            var entityId = "a684dbe0-1d8a-11ec-9e43-45cc9f1c21ec";
+            var webSocket = new WebSocket("wss://thingsboard.uclv.cu/api/ws/plugins/telemetry?token=" + token);
+
+            webSocket.onopen = function () {
+                var object = {
+                    tsSubCmds: [
+                        {
+                            entityType: "DEVICE",
+                            entityId: entityId,
+                            scope: "LATEST_TELEMETRY",
+                            cmdId: 10
+                        }
+                    ],
+                    historyCmds: [],
+                    attrSubCmds: []
+                };
+                var data = JSON.stringify(object);
+                webSocket.send(data);
+            };
+
+            webSocket.onmessage = function (event) {
+                var received_msg = event.data;
+                console.log(received_msg);
+            };
+
+            webSocket.onclose = function (event) {
+                alert("Connection is closed!");
+            };
+        }
+    </script>
+
+</head>
+<body>
+
+<div id="sse">
+    <a href="javascript:WebSocketAPIExample()">Run WebSocket</a>
+</div>
+
+</body>
+</html>

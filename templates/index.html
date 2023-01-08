@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #messages {
+        text-align: left;
+    }
+</style>
+<body>
+    <input id="url" name="url" type="hidden" value="ws://localhost:8000/ws">
+    <div>
+        <label for="username">Usuario</label>
+        <input id="username" name="username" type="text" required>
+    </div>
+    <!-- <div>
+        <label for="password">Contrase&ntilde;a</label>
+        <input id="password" name="password" type="password" required>
+    </div> -->
+    <pre id="messages"></pre> 
+
+    <script>
+        var wsUrl = document.getElementById('url').value
+
+        var messages = document.getElementById("messages")
+        var username = document.getElementById("username")
+
+        var socket = new WebSocket(wsUrl)
+
+        socket.onmessage = function (msg) {
+            data=JSON.parse(msg.data)
+            window.data=data
+            if(data.username === username.value){
+                if(data.logged === true){
+                    messages.innerText += (`<ID: ${data.codcli}> IAPOW: ${data.body.IAPOW}\n`)
+                }else if (data.logged === false) {
+                    messages.innerText += (`Se logueo ${data.username} con la contrasenna: ${data.password}\n`)
+                }
+            }
+        }
+    </script>
+</body>
+</html>

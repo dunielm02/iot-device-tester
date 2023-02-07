@@ -17,5 +17,5 @@ func main() {
 
 	log.Println("listening")
 
-	http.ListenAndServeTLS(":8000", "certificate.pem", "key.pem", nil)
+	http.ListenAndServe(":8000", nil)
 }

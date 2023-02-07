@@ -1,2 +1,5 @@
 certificate.pem
 key.pem
+postcss.config.js
+tailwind.config.js
+templates/css/input.css

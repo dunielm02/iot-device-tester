@@ -1,21 +1,27 @@
 package main
 
 import (
+	"iotTester/database"
+	httpServer "iotTester/http"
+	"iotTester/mqtt"
+	"iotTester/templates"
 	"log"
 	"net/http"
-	"websocket/templates"
-
-	"github.com/olahol/melody"
 )
 
-var m *melody.Melody
-
 func main() {
-	m = melody.New()
 	templates.Serve()
-	Setup()
+	httpServer.Setup()
 
-	log.Println("listening")
+	err := database.ConnectToSQLite()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mqtt.Connect()
+
+	log.Println("Http listening")
 
 	http.ListenAndServe(":8000", nil)
 }

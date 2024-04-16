@@ -8,41 +8,53 @@ import (
 	"fmt"
 	httpServer "iotTester/http"
 	"log"
+	"os"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 var Client mqtt.Client
 
-const (
-	broker              = "broker.hivemq.com"
-	port                = 8883
-	mqtt_username       = ""
-	mqtt_password       = ""
-	initialSubscription = "/api/"
-)
+func Connect() {
+	tlsConfig := NewTlsConfig()
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(fmt.Sprintf("ssl://%s:%s", os.Getenv("BROKER"), os.Getenv("MQTT_PORT")))
 
-// var token = os.Getenv("ENV_TOKEN")
+	if os.Getenv("USE_MQTT") == "TRUE" {
+		opts.SetTLSConfig(tlsConfig)
+	}
 
-var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	httpServer.ReceiveDataFromMqtt(msg.Topic(), msg.Payload())
+	opts.SetClientID(os.Getenv("CLIENT_ID"))
+	opts.SetUsername(os.Getenv("USERNAME"))
+	opts.SetPassword(os.Getenv("PASSWORD"))
+	opts.SetDefaultPublishHandler(
+		func(client mqtt.Client, msg mqtt.Message) {
+			httpServer.ReceiveDataFromMqtt(msg.Topic(), msg.Payload())
+		},
+	)
+
+	opts.OnConnect = func(client mqtt.Client) {
+		fmt.Println("Connected")
+
+		sub(client)
+	}
+
+	opts.OnConnectionLost = func(client mqtt.Client, err error) {
+		log.Printf("Connect lost: %v \n", err)
+	}
+
+	Client = mqtt.NewClient(opts)
+
+	if token := Client.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	}
 }
 
 func sub(client mqtt.Client) {
-	topic := initialSubscription + "#"
+	topic := os.Getenv("TOPIC") + "#"
 	token := client.Subscribe(topic, 2, nil)
 	token.Wait()
 	log.Println("Mqtt listening...")
-}
-
-var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-	fmt.Println("Connected")
-
-	sub(client)
-}
-
-var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-	log.Printf("Connect lost: %v \n", err)
 }
 
 func GetCertificatesPEM(address string) (string, error) {
@@ -68,30 +80,12 @@ func GetCertificatesPEM(address string) (string, error) {
 
 func NewTlsConfig() *tls.Config {
 	certpool := x509.NewCertPool()
-	ca, err := GetCertificatesPEM(broker + ":8883")
+	ca, err := GetCertificatesPEM(os.Getenv("BROKER") + ":" + os.Getenv("MQTT_PORT"))
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Fatalln("Error with Certificate", err.Error())
 	}
 	certpool.AppendCertsFromPEM([]byte(ca))
 	return &tls.Config{
 		RootCAs: certpool,
-	}
-}
-
-func Connect() {
-	tlsConfig := NewTlsConfig()
-	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("ssl://%s:%d", broker, port))
-	opts.SetTLSConfig(tlsConfig)
-	opts.SetClientID("iotDeviceTester")
-	opts.SetUsername(mqtt_username)
-	opts.SetPassword(mqtt_password)
-	opts.SetDefaultPublishHandler(messagePubHandler)
-	opts.OnConnect = connectHandler
-	opts.OnConnectionLost = connectLostHandler
-	Client = mqtt.NewClient(opts)
-
-	if token := Client.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
 	}
 }

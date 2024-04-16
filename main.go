@@ -7,6 +7,9 @@ import (
 	"iotTester/templates"
 	"log"
 	"net/http"
+	"os"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
@@ -18,10 +21,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	mqtt.Connect()
 
 	log.Println("Http listening")
 
-	http.ListenAndServe(":8000", nil)
+	http.ListenAndServe(":"+os.Getenv("HTTP_PORT"), nil)
 }

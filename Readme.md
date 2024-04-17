@@ -33,7 +33,7 @@ HTTP_PORT = "8000"
 USE_MQTT = TRUE
 
 #Mqtt Options
-BROKER = "broker.hivemq.com" 
+BROKER = "broker.dunielm02.com" 
 MQTT_PORT = "8883"
 CLIENT_ID = "iotDeviceTester"
 USERNAME = ""

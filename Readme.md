@@ -62,6 +62,7 @@ type Log struct {
 
 ```shell
 git clone https://github.com/dunielm02/iot-device-tester.git
+cd iot-device-tester
 go mod tidy
 go build -o build/iot-device-tester
 ```

@@ -1,6 +1,7 @@
 # Iot Device Tester
 
-Iot Device Tester is a project designed for test connectivity in iot devices.
+## Why
+Sometimes the IoT devices should be placed on a site where the internet connection is very bad. So before connecting them to the main platform, you should test that those devices are well connected to the network and also send correct values. This Project is a lightweight solution to facilitate the network testing process and also offers a functional interface to check the correctness of the data sent by the device.
 
 ## Features
 
